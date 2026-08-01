@@ -18,11 +18,11 @@ yields = pd.concat([two, five, ten, twenty, thirty], axis = 1).rename(columns = 
 
 yields = yields.ffill().bfill()
 
-#print(yields)
+print(yields)
 
 yields_change = yields.diff()
 
-#print(yields_change)
+print(yields_change)
 
 highest_changes = {}
 
@@ -31,7 +31,7 @@ for tenure in yields_change.columns:
     top_five = np.abs(yields_change[tenure]).sort_values(ascending = False).head()
     highest_changes[tenure] = yields_change[tenure].loc[top_five.index]
 
-#print(highest_changes)
+print(highest_changes)
 
 spreads = pd.DataFrame({
 
@@ -43,7 +43,7 @@ spreads = pd.DataFrame({
 result_two_ten = spreads[spreads["2s10s"] < 0]
 result_five_thirty = spreads[spreads["5s30s"] < 0]
 
-#print(result_two_ten, result_five_thirty)
+print(result_two_ten, result_five_thirty)
 
 descriptive_stats = ["mean", "std", "min", "max"]
 
