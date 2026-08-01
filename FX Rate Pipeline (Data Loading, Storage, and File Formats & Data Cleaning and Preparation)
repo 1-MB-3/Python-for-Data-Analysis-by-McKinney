@@ -1,0 +1,99 @@
+import numpy as np
+import pandas as pd
+
+#data dervied from FRED (01-01-2020, 07-24-2026)
+
+EURUSD = pd.read_csv("PATH/DEXUSEU.csv")
+EURUSD['observation_date'] = pd.to_datetime(EURUSD['observation_date'])
+EURUSD = EURUSD.set_index('observation_date')
+EURUSD = EURUSD.rename(columns = {"DEXUSEU": "EURUSD"})
+
+USDJPY = pd.read_csv("PATH/DEXJPUS.csv")
+USDJPY['observation_date'] = pd.to_datetime(USDJPY['observation_date'])
+USDJPY = USDJPY.set_index('observation_date')
+USDJPY = USDJPY.rename(columns = {"DEXJPUS": "USDJPY"})
+
+GBPUSD = pd.read_csv("PATH/DEXUSUK.csv")
+GBPUSD['observation_date'] = pd.to_datetime(GBPUSD['observation_date'])
+GBPUSD = GBPUSD.set_index('observation_date')
+GBPUSD = GBPUSD.rename(columns = {"DEXUSUK": "GBPUSD"})
+
+AUDUSD = pd.read_csv("PATH/DEXUSAL.csv")
+AUDUSD['observation_date'] = pd.to_datetime(AUDUSD['observation_date'])
+AUDUSD = AUDUSD.set_index('observation_date')
+AUDUSD = AUDUSD.rename(columns = {"DEXUSAL": "AUDUSD"})
+
+USDCHF = pd.read_csv("PATH/DEXSZUS.csv")
+USDCHF['observation_date'] = pd.to_datetime(USDCHF['observation_date'])
+USDCHF = USDCHF.set_index('observation_date')
+USDCHF = USDCHF.rename(columns = {"DEXSZUS": "USDCHF"})
+
+print(EURUSD)
+
+pdnames = [EURUSD, USDJPY, GBPUSD, AUDUSD, USDCHF]
+
+master = pd.concat(pdnames, axis = 1, join = "outer")
+
+print(master)
+
+master.to_csv("PATH/master.csv")
+master.to_parquet("PATH/master.parquet")
+
+print(master.index.dtype)
+print(master.dtypes)
+print(master.isna().sum())
+
+master = master.dropna(how = "all")
+
+print(master.isna().sum())
+
+master = master.sort_index(ascending = 1)
+
+quantiles_iqr = {}
+
+for type in master.columns:
+
+    q1 = master[type].quantile(0.25)
+    q3 = master[type].quantile(0.75)
+    iqr = q3 - q1
+
+    quantiles_iqr[type] = {"Q1": q1, "Q3": q3, "IQR": iqr}
+
+outliers_iqr = pd.DataFrame(index = master.index, columns = master.columns + "_outlier")
+
+for outlier in outliers_iqr.columns:
+
+    i = outlier.replace("_outlier", "")
+
+    outliers_iqr[outlier] = (master[i] < quantiles_iqr[i]["Q1"] - 1.5 * quantiles_iqr[i]["IQR"]) | (master[i] > quantiles_iqr[i]["Q3"] + 1.5 * quantiles_iqr[i]["IQR"])
+
+print(outliers_iqr)
+
+outliers_std = pd.DataFrame(index = master.index, columns = master.columns + "_outlier")
+
+for outlier in outliers_std.columns:
+
+    i = outlier.replace("_outlier", "")
+
+    outliers_std[outlier] = (master[i] < master[i].mean() - 2 * master[i].std()) | (master[i] > master[i].mean() + 2 * master[i].std())
+
+print(outliers_std)
+
+for outlier in master.columns:
+
+    i = outlier + "_outlier"
+
+    day = master[outlier][outliers_std[i]]
+
+    print(day)
+
+returns = np.log(master).diff()
+
+print(returns)
+
+usd_returns = returns.copy()
+usd_names = ["EURUSD", "GBPUSD", "AUDUSD"]
+usd_returns[usd_names] = usd_returns[usd_names] * -1
+usd_returns.insert(loc = 5, column = "avg_return", value = usd_returns.mean(axis = 1))
+
+print(usd_returns)
