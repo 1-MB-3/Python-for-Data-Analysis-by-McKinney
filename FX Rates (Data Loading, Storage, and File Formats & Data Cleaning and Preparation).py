@@ -1,4 +1,3 @@
-```py
 import numpy as np
 import pandas as pd
 
@@ -98,4 +97,3 @@ usd_returns[usd_names] = usd_returns[usd_names] * -1
 usd_returns.insert(loc = 5, column = "avg_return", value = usd_returns.mean(axis = 1))
 
 print(usd_returns)
-```
