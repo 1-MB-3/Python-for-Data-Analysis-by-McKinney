@@ -5,17 +5,17 @@ import seaborn as sns
 
 #data derived from stooq and WSJ (01-01-2006, 07-31-2026)
 
-xauusd = pd.read_csv("C:/Users/fenzi/Downloads/xauusd_d.csv", skipinitialspace = True)
+xauusd = pd.read_csv("PATH/xauusd_d.csv", skipinitialspace = True)
 xauusd["Date"] = pd.to_datetime(xauusd["Date"])
 xauusd = xauusd.sort_values("Date").reset_index(drop = True)
 xauusd = xauusd.set_index("Date")
 
-xagusd = pd.read_csv("C:/Users/fenzi/Downloads/xagusd_d.csv", skipinitialspace = True)
+xagusd = pd.read_csv("PATH/xagusd_d.csv", skipinitialspace = True)
 xagusd["Date"] = pd.to_datetime(xagusd["Date"])
 xagusd = xagusd.sort_values("Date").reset_index(drop = True)
 xagusd = xagusd.set_index("Date")
 
-dxy = pd.read_csv("C:/Users/fenzi/Downloads/dxy_wsj.csv", skipinitialspace = True)
+dxy = pd.read_csv("PATH/dxy_wsj.csv", skipinitialspace = True)
 dxy["Date"] = pd.to_datetime(dxy["Date"])
 dxy = dxy.sort_values("Date").reset_index(drop = True)
 dxy = dxy.set_index("Date")
